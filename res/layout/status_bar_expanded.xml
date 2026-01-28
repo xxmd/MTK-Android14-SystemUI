@@ -26,16 +26,10 @@
     android:layout_height="match_parent"
     android:background="@android:color/transparent">
 
-    <com.android.systemui.common.ui.view.LongPressHandlingView
+    <com.android.systemui.common.ui.view.TouchHandlingView
         android:id="@+id/keyguard_long_press"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
-    <ViewStub
-        android:id="@+id/keyguard_qs_user_switch_stub"
-        android:layout="@layout/keyguard_qs_user_switch"
-        android:layout_height="match_parent"
-        android:layout_width="match_parent" />
 
     <include layout="@layout/status_bar_expanded_plugin_frame"/>
 
@@ -46,10 +40,6 @@
         android:id="@+id/notification_container_parent"
         android:clipToPadding="false"
         android:clipChildren="false">
-
-        <include
-            layout="@layout/keyguard_status_view"
-            android:visibility="gone"/>
 
         <include layout="@layout/dock_info_overlay"/>
 
@@ -120,34 +110,34 @@
         />
     </com.android.systemui.shade.NotificationsQuickSettingsContainer>
 
-    <ViewStub
-        android:id="@+id/keyguard_user_switcher_stub"
-        android:layout="@layout/keyguard_user_switcher"
-        android:layout_height="match_parent"
-        android:layout_width="match_parent" />
-
     <include layout="@layout/dock_info_bottom_area_overlay" />
 
-    <com.android.keyguard.LockIconView
-        android:id="@+id/lock_icon_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <!-- Background protection -->
-        <ImageView
-            android:id="@+id/lock_icon_bg"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/fingerprint_bg"
-            android:visibility="invisible"/>
+    <!-- ===aistudio PicArt update Start=== -->
+    <include layout="@layout/custom_lockscreen_widget"/>
+    <!-- left arrow animation imageview -->
+    <ImageView
+        android:id="@+id/start_arrow"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="start|top"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="650dp"
+        android:background="@drawable/ic_start_arrow"
+        android:visibility="gone"
+        android:importantForAccessibility="no"/>
 
-        <ImageView
-            android:id="@+id/lock_icon"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:scaleType="centerCrop"/>
-
-    </com.android.keyguard.LockIconView>
+    <!-- right arrow animation imageview -->
+    <ImageView
+        android:id="@+id/end_arrow"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="end|top"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="650dp"
+        android:background="@drawable/ic_end_arrow"
+        android:visibility="gone"
+        android:importantForAccessibility="no"/>
+    <!-- ===aistudio PicArt update End=== -->
 
     <include
         layout="@layout/keyguard_bottom_area"
