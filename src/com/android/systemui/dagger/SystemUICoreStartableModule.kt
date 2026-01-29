@@ -18,65 +18,82 @@ package com.android.systemui.dagger
 
 import com.android.keyguard.KeyguardBiometricLockoutLogger
 import com.android.systemui.CoreStartable
+import com.android.systemui.Flags.unfoldLatencyTrackingFix
 import com.android.systemui.LatencyTester
-import com.android.systemui.ScreenDecorations
 import com.android.systemui.SliceBroadcastRelayHandler
-import com.android.systemui.accessibility.SystemActions
-import com.android.systemui.accessibility.WindowMagnification
-import com.android.systemui.biometrics.AuthController
+import com.android.systemui.accessibility.Magnification
+import com.android.systemui.back.domain.interactor.BackActionInteractor
 import com.android.systemui.biometrics.BiometricNotificationService
+import com.android.systemui.bouncer.domain.startable.BouncerStartable
 import com.android.systemui.clipboardoverlay.ClipboardListener
+import com.android.systemui.complication.ComplicationTypesUpdater
+import com.android.systemui.complication.DreamClockTimeComplication
 import com.android.systemui.controls.dagger.StartControlsStartableModule
 import com.android.systemui.dagger.qualifiers.PerUser
 import com.android.systemui.dreams.AssistantAttentionMonitor
 import com.android.systemui.dreams.DreamMonitor
+import com.android.systemui.dreams.DreamOverlayRegistrant
+import com.android.systemui.dreams.homecontrols.system.HomeControlsDreamStartable
 import com.android.systemui.globalactions.GlobalActionsComponent
+import com.android.systemui.haptics.msdl.MSDLCoreStartable
 import com.android.systemui.keyboard.KeyboardUI
 import com.android.systemui.keyboard.PhysicalKeyboardCoreStartable
+import com.android.systemui.keyguard.KeyguardViewConfigurator
 import com.android.systemui.keyguard.KeyguardViewMediator
 import com.android.systemui.keyguard.data.quickaffordance.MuteQuickAffordanceCoreStartable
+import com.android.systemui.keyguard.ui.binder.KeyguardDismissActionBinder
+import com.android.systemui.keyguard.ui.binder.KeyguardDismissBinder
 import com.android.systemui.log.SessionTracker
 import com.android.systemui.media.RingtonePlayer
 import com.android.systemui.media.dialog.MediaOutputSwitcherDialogUI
 import com.android.systemui.media.taptotransfer.MediaTttCommandLineHelper
 import com.android.systemui.media.taptotransfer.receiver.MediaTttChipControllerReceiver
 import com.android.systemui.media.taptotransfer.sender.MediaTttSenderCoordinator
-import com.android.systemui.power.PowerUI
-import com.android.systemui.reardisplay.RearDisplayDialogController
-import com.android.systemui.recents.Recents
-import com.android.systemui.settings.dagger.MultiUserUtilsModule
+import com.android.systemui.mediaprojection.taskswitcher.MediaProjectionTaskSwitcherCoreStartable
+import com.android.systemui.settings.MultiUserUtilsModule
 import com.android.systemui.shortcut.ShortcutKeyDispatcher
+import com.android.systemui.statusbar.ImmersiveModeConfirmation
+import com.android.systemui.statusbar.gesture.GesturePointerEventListener
 import com.android.systemui.statusbar.notification.InstantAppNotifier
-import com.android.systemui.statusbar.phone.KeyguardLiftController
+import com.android.systemui.statusbar.notification.headsup.StatusBarHeadsUpChangeListener
+import com.android.systemui.statusbar.policy.BatteryControllerStartable
 import com.android.systemui.stylus.StylusUsiPowerStartable
 import com.android.systemui.temporarydisplay.chipbar.ChipbarCoordinator
 import com.android.systemui.theme.ThemeOverlayController
-import com.android.systemui.toast.ToastUI
+import com.android.systemui.unfold.DisplaySwitchLatencyTracker
+import com.android.systemui.unfold.NoCooldownDisplaySwitchLatencyTracker
 import com.android.systemui.usb.StorageNotification
 import com.android.systemui.util.NotificationChannels
 import com.android.systemui.util.StartBinderLoggerModule
-import com.android.systemui.volume.VolumeUI
+import com.android.systemui.wallpapers.dagger.WallpaperModule
 import com.android.systemui.wmshell.WMShell
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
-
+import javax.inject.Provider
+//===aistudio PicArt update Start===
+import com.android.systemui.VendorServices
+//===aistudio PicArt update End===
 /**
- * Collection of {@link CoreStartable}s that should be run on AOSP.
+ * DEPRECATED: DO NOT ADD THINGS TO THIS FILE.
+ *
+ * Add a feature specific daggger module for what you are working on. Bind your CoreStartable there.
+ * Include that module where it is needed.
+ *
+ * @deprecated
  */
-@Module(includes = [
-    MultiUserUtilsModule::class,
-    StartControlsStartableModule::class,
-    StartBinderLoggerModule::class,
-])
+@Module(
+    includes =
+        [
+            MultiUserUtilsModule::class,
+            StartControlsStartableModule::class,
+            StartBinderLoggerModule::class,
+            WallpaperModule::class,
+        ]
+)
 abstract class SystemUICoreStartableModule {
-    /** Inject into AuthController.  */
-    @Binds
-    @IntoMap
-    @ClassKey(AuthController::class)
-    abstract fun bindAuthController(service: AuthController): CoreStartable
-
     /** Inject into BiometricNotificationService */
     @Binds
     @IntoMap
@@ -85,29 +102,37 @@ abstract class SystemUICoreStartableModule {
         service: BiometricNotificationService
     ): CoreStartable
 
-    /** Inject into ClipboardListener.  */
+    /** Inject into ClipboardListener. */
     @Binds
     @IntoMap
     @ClassKey(ClipboardListener::class)
     abstract fun bindClipboardListener(sysui: ClipboardListener): CoreStartable
 
-    /** Inject into GlobalActionsComponent.  */
+    /** Inject into GlobalActionsComponent. */
     @Binds
     @IntoMap
     @ClassKey(GlobalActionsComponent::class)
     abstract fun bindGlobalActionsComponent(sysui: GlobalActionsComponent): CoreStartable
 
-    /** Inject into InstantAppNotifier.  */
+    /** Inject into InstantAppNotifier. */
     @Binds
     @IntoMap
     @ClassKey(InstantAppNotifier::class)
     abstract fun bindInstantAppNotifier(sysui: InstantAppNotifier): CoreStartable
 
-    /** Inject into KeyboardUI.  */
+    /** Inject into KeyboardUI. */
     @Binds
     @IntoMap
     @ClassKey(KeyboardUI::class)
     abstract fun bindKeyboardUI(sysui: KeyboardUI): CoreStartable
+
+    /** Inject into MediaProjectionTaskSwitcherCoreStartable. */
+    @Binds
+    @IntoMap
+    @ClassKey(MediaProjectionTaskSwitcherCoreStartable::class)
+    abstract fun bindProjectedTaskListener(
+        sysui: MediaProjectionTaskSwitcherCoreStartable
+    ): CoreStartable
 
     /** Inject into KeyguardBiometricLockoutLogger */
     @Binds
@@ -117,120 +142,90 @@ abstract class SystemUICoreStartableModule {
         sysui: KeyguardBiometricLockoutLogger
     ): CoreStartable
 
-    /** Inject into KeyguardViewMediator.  */
+    /** Inject into KeyguardViewMediator. */
     @Binds
     @IntoMap
     @ClassKey(KeyguardViewMediator::class)
     abstract fun bindKeyguardViewMediator(sysui: KeyguardViewMediator): CoreStartable
 
-    /** Inject into LatencyTests.  */
+    /** Inject into LatencyTests. */
     @Binds
     @IntoMap
     @ClassKey(LatencyTester::class)
     abstract fun bindLatencyTester(sysui: LatencyTester): CoreStartable
 
-    /** Inject into NotificationChannels.  */
+    /** Inject into NotificationChannels. */
     @Binds
     @IntoMap
     @ClassKey(NotificationChannels::class)
     @PerUser
     abstract fun bindNotificationChannels(sysui: NotificationChannels): CoreStartable
 
-    /** Inject into PowerUI.  */
+    /** Inject into ImmersiveModeConfirmation. */
     @Binds
     @IntoMap
-    @ClassKey(PowerUI::class)
-    abstract fun bindPowerUI(sysui: PowerUI): CoreStartable
+    @ClassKey(ImmersiveModeConfirmation::class)
+    abstract fun bindImmersiveModeConfirmation(sysui: ImmersiveModeConfirmation): CoreStartable
 
-    /** Inject into Recents.  */
-    @Binds
-    @IntoMap
-    @ClassKey(Recents::class)
-    abstract fun bindRecents(sysui: Recents): CoreStartable
-
-    /** Inject into RingtonePlayer.  */
+    /** Inject into RingtonePlayer. */
     @Binds
     @IntoMap
     @ClassKey(RingtonePlayer::class)
     abstract fun bind(sysui: RingtonePlayer): CoreStartable
 
-    /** Inject into ScreenDecorations.  */
+    /** Inject into GesturePointerEventHandler. */
     @Binds
     @IntoMap
-    @ClassKey(ScreenDecorations::class)
-    abstract fun bindScreenDecorations(sysui: ScreenDecorations): CoreStartable
+    @ClassKey(GesturePointerEventListener::class)
+    abstract fun bindGesturePointerEventListener(sysui: GesturePointerEventListener): CoreStartable
 
-    /** Inject into SessionTracker.  */
+    /** Inject into SessionTracker. */
     @Binds
     @IntoMap
     @ClassKey(SessionTracker::class)
     abstract fun bindSessionTracker(service: SessionTracker): CoreStartable
 
-    /** Inject into ShortcutKeyDispatcher.  */
+    /** Inject into ShortcutKeyDispatcher. */
     @Binds
     @IntoMap
     @ClassKey(ShortcutKeyDispatcher::class)
     abstract fun bindShortcutKeyDispatcher(sysui: ShortcutKeyDispatcher): CoreStartable
 
-    /** Inject into SliceBroadcastRelayHandler.  */
+    /** Inject into SliceBroadcastRelayHandler. */
     @Binds
     @IntoMap
     @ClassKey(SliceBroadcastRelayHandler::class)
     abstract fun bindSliceBroadcastRelayHandler(sysui: SliceBroadcastRelayHandler): CoreStartable
 
-    /** Inject into StorageNotification.  */
+    /** Inject into StorageNotification. */
     @Binds
     @IntoMap
     @ClassKey(StorageNotification::class)
     abstract fun bindStorageNotification(sysui: StorageNotification): CoreStartable
 
-    /** Inject into SystemActions.  */
-    @Binds
-    @IntoMap
-    @ClassKey(SystemActions::class)
-    abstract fun bindSystemActions(sysui: SystemActions): CoreStartable
-
-    /** Inject into ThemeOverlayController.  */
+    /** Inject into ThemeOverlayController. */
     @Binds
     @IntoMap
     @ClassKey(ThemeOverlayController::class)
     abstract fun bindThemeOverlayController(sysui: ThemeOverlayController): CoreStartable
 
-    /** Inject into ToastUI.  */
-    @Binds
-    @IntoMap
-    @ClassKey(ToastUI::class)
-    abstract fun bindToastUI(service: ToastUI): CoreStartable
-
-    /** Inject into MediaOutputSwitcherDialogUI.  */
+    /** Inject into MediaOutputSwitcherDialogUI. */
     @Binds
     @IntoMap
     @ClassKey(MediaOutputSwitcherDialogUI::class)
     abstract fun MediaOutputSwitcherDialogUI(sysui: MediaOutputSwitcherDialogUI): CoreStartable
 
-    /** Inject into VolumeUI.  */
+    /** Inject into Magnification. */
     @Binds
     @IntoMap
-    @ClassKey(VolumeUI::class)
-    abstract fun bindVolumeUI(sysui: VolumeUI): CoreStartable
+    @ClassKey(Magnification::class)
+    abstract fun bindMagnification(sysui: Magnification): CoreStartable
 
-    /** Inject into WindowMagnification.  */
-    @Binds
-    @IntoMap
-    @ClassKey(WindowMagnification::class)
-    abstract fun bindWindowMagnification(sysui: WindowMagnification): CoreStartable
-
-    /** Inject into WMShell.  */
+    /** Inject into WMShell. */
     @Binds
     @IntoMap
     @ClassKey(WMShell::class)
     abstract fun bindWMShell(sysui: WMShell): CoreStartable
-
-    /** Inject into KeyguardLiftController.  */
-    @Binds
-    @IntoMap
-    @ClassKey(KeyguardLiftController::class)
-    abstract fun bindKeyguardLiftController(sysui: KeyguardLiftController): CoreStartable
 
     /** Inject into MediaTttSenderCoordinator. */
     @Binds
@@ -243,7 +238,7 @@ abstract class SystemUICoreStartableModule {
     @IntoMap
     @ClassKey(MediaTttChipControllerReceiver::class)
     abstract fun bindMediaTttChipControllerReceiver(
-            sysui: MediaTttChipControllerReceiver
+        sysui: MediaTttChipControllerReceiver
     ): CoreStartable
 
     /** Inject into MediaTttCommandLineHelper. */
@@ -258,13 +253,6 @@ abstract class SystemUICoreStartableModule {
     @ClassKey(ChipbarCoordinator::class)
     abstract fun bindChipbarController(sysui: ChipbarCoordinator): CoreStartable
 
-
-    /** Inject into RearDisplayDialogController) */
-    @Binds
-    @IntoMap
-    @ClassKey(RearDisplayDialogController::class)
-    abstract fun bindRearDisplayDialogController(sysui: RearDisplayDialogController): CoreStartable
-
     /** Inject into StylusUsiPowerStartable) */
     @Binds
     @IntoMap
@@ -276,23 +264,111 @@ abstract class SystemUICoreStartableModule {
     @ClassKey(PhysicalKeyboardCoreStartable::class)
     abstract fun bindKeyboardCoreStartable(listener: PhysicalKeyboardCoreStartable): CoreStartable
 
-    /** Inject into MuteQuickAffordanceCoreStartable*/
+    /** Inject into MuteQuickAffordanceCoreStartable */
     @Binds
     @IntoMap
     @ClassKey(MuteQuickAffordanceCoreStartable::class)
     abstract fun bindMuteQuickAffordanceCoreStartable(
-            sysui: MuteQuickAffordanceCoreStartable
+        sysui: MuteQuickAffordanceCoreStartable
     ): CoreStartable
 
-    /**Inject into DreamMonitor */
+    /** Inject into DreamMonitor */
     @Binds
     @IntoMap
     @ClassKey(DreamMonitor::class)
     abstract fun bindDreamMonitor(sysui: DreamMonitor): CoreStartable
 
-    /**Inject into AssistantAttentionMonitor */
+    /** Inject into AssistantAttentionMonitor */
     @Binds
     @IntoMap
     @ClassKey(AssistantAttentionMonitor::class)
     abstract fun bindAssistantAttentionMonitor(sysui: AssistantAttentionMonitor): CoreStartable
+
+    @Binds
+    @IntoMap
+    @ClassKey(KeyguardViewConfigurator::class)
+    abstract fun bindKeyguardViewConfigurator(impl: KeyguardViewConfigurator): CoreStartable
+
+    @Binds
+    @IntoMap
+    @ClassKey(StatusBarHeadsUpChangeListener::class)
+    abstract fun bindStatusBarHeadsUpChangeListener(
+        impl: StatusBarHeadsUpChangeListener
+    ): CoreStartable
+
+    @Binds
+    @IntoMap
+    @ClassKey(BackActionInteractor::class)
+    abstract fun bindBackActionInteractor(impl: BackActionInteractor): CoreStartable
+
+    @Binds
+    @IntoMap
+    @ClassKey(KeyguardDismissActionBinder::class)
+    abstract fun bindKeyguardDismissActionBinder(impl: KeyguardDismissActionBinder): CoreStartable
+
+    @Binds
+    @IntoMap
+    @ClassKey(BouncerStartable::class)
+    abstract fun bindBouncerStartable(impl: BouncerStartable): CoreStartable
+
+    @Binds
+    @IntoMap
+    @ClassKey(KeyguardDismissBinder::class)
+    abstract fun bindKeyguardDismissBinder(impl: KeyguardDismissBinder): CoreStartable
+
+    @Binds
+    @IntoMap
+    @ClassKey(HomeControlsDreamStartable::class)
+    abstract fun bindHomeControlsDreamStartable(impl: HomeControlsDreamStartable): CoreStartable
+
+    /** Binds {@link BatteryControllerStartable} as a {@link CoreStartable}. */
+    @Binds
+    @IntoMap
+    @ClassKey(BatteryControllerStartable::class)
+    abstract fun bindsBatteryControllerStartable(impl: BatteryControllerStartable): CoreStartable
+
+    @Binds
+    @IntoMap
+    @ClassKey(MSDLCoreStartable::class)
+    abstract fun bindMSDLCoreStartable(impl: MSDLCoreStartable): CoreStartable
+
+    /** Inject into DreamOverlay. */
+    @Binds
+    @IntoMap
+    @ClassKey(DreamOverlayRegistrant::class)
+    abstract fun bindDreamOverlayRegistrant(
+        dreamOverlayRegistrant: DreamOverlayRegistrant
+    ): CoreStartable
+
+    /** Inject into DreamClockTimeComplication.Registrant */
+    @Binds
+    @IntoMap
+    @ClassKey(DreamClockTimeComplication.Registrant::class)
+    abstract fun bindDreamClockTimeComplicationRegistrant(
+        registrant: DreamClockTimeComplication.Registrant
+    ): CoreStartable
+
+    /** Inject into ComplicationTypesUpdater. */
+    @Binds
+    @IntoMap
+    @ClassKey(ComplicationTypesUpdater::class)
+    abstract fun bindComplicationTypesUpdater(updater: ComplicationTypesUpdater): CoreStartable
+
+    //===aistudio PicArt update Start===
+    @Binds
+    @IntoMap
+    @ClassKey(VendorServices::class)
+    abstract fun bindVendorServices(sysui: VendorServices): CoreStartable
+    //===aistudio PicArt update End===
+
+    companion object {
+        @Provides
+        @IntoMap
+        @ClassKey(DisplaySwitchLatencyTracker::class)
+        fun provideDisplaySwitchLatencyTracker(
+            noCoolDownVariant: Provider<NoCooldownDisplaySwitchLatencyTracker>,
+            coolDownVariant: Provider<DisplaySwitchLatencyTracker>,
+        ): CoreStartable =
+            if (unfoldLatencyTrackingFix()) coolDownVariant.get() else noCoolDownVariant.get()
+    }
 }
