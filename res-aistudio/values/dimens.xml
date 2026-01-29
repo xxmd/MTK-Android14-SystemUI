@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="lock_screen_widget_margin_top">650dp</dimen>
+    <dimen name="lock_screen_widget_margin_w">60dp</dimen>
+</resources>
+

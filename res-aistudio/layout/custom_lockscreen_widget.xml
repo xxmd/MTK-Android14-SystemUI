@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/lock_screen_widget_view"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/notification_side_paddings"
+    android:layout_marginEnd="@dimen/notification_side_paddings"
+    android:layout_marginTop="@dimen/lock_screen_widget_margin_top"
+    android:gravity="center"
+    android:clickable="true"
+    android:visibility="gone"
+    android:background="#00000000">
+
+</FrameLayout>

@@ -1,0 +1,28 @@
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- ===aistudio PicArt update Start=== -->
+    <FrameLayout
+        android:id="@+id/left_view"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:background="#ffffff">
+        <ImageView
+            android:id="@+id/left_view_img"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:scaleType="centerCrop" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/right_view"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
+        <ImageView
+            android:id="@+id/right_view_img"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:scaleType="centerCrop" />
+    </FrameLayout>
+    <!-- ===aistudio PicArt update End=== -->
+
+</merge>
