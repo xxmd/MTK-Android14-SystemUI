@@ -508,8 +508,9 @@ android_app {
     static_libs: [
         "SystemUI-core",
     ],
-    resource_dirs: [],
-
+    resource_dirs: [
+        "res-aistudio",
+    ],
     platform_apis: true,
     system_ext_specific: true,
     certificate: "platform",
