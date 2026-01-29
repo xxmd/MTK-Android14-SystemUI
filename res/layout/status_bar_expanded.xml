@@ -26,10 +26,16 @@
     android:layout_height="match_parent"
     android:background="@android:color/transparent">
 
-    <com.android.systemui.common.ui.view.LongPressHandlingView
+    <com.android.systemui.common.ui.view.TouchHandlingView
         android:id="@+id/keyguard_long_press"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+
+<!--    <com.android.systemui.common.ui.view.LongPressHandlingView-->
+<!--        android:id="@+id/keyguard_long_press"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent" />-->
 
     <ViewStub
         android:id="@+id/keyguard_qs_user_switch_stub"
@@ -127,6 +133,38 @@
         android:layout_width="match_parent" />
 
     <include layout="@layout/dock_info_bottom_area_overlay" />
+
+
+    <!-- ===aistudio PicArt update Start=== -->
+    <include layout="@layout/custom_lockscreen_widget"/>
+    <!-- left arrow animation imageview -->
+    <ImageView
+        android:id="@+id/start_arrow"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="start|top"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="650dp"
+        android:background="@drawable/ic_start_arrow"
+        android:visibility="gone"
+        android:importantForAccessibility="no"/>
+
+    <!-- right arrow animation imageview -->
+    <ImageView
+        android:id="@+id/end_arrow"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="end|top"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="650dp"
+        android:background="@drawable/ic_end_arrow"
+        android:visibility="gone"
+        android:importantForAccessibility="no"/>
+    <!-- ===aistudio PicArt update End=== -->
+
+    <include
+        layout="@layout/keyguard_bottom_area"
+        android:visibility="gone" />
 
     <com.android.keyguard.LockIconView
         android:id="@+id/lock_icon_view"
