@@ -151,6 +151,7 @@ android_library {
         "res-product",
         "res-keyguard",
         "res",
+        "res-aistudio",
     ],
     static_libs: [
         "WifiTrackerLib",
@@ -509,7 +510,6 @@ android_app {
         "SystemUI-core",
     ],
     resource_dirs: [
-        "res-aistudio",
     ],
     platform_apis: true,
     system_ext_specific: true,
