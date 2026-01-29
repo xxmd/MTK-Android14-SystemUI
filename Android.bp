@@ -508,6 +508,7 @@ android_app {
     ],
     static_libs: [
         "SystemUI-core",
+        "lib_pictorial",
     ],
     resource_dirs: [
     ],
@@ -526,4 +527,9 @@ android_app {
         "privapp_whitelist_com.android.systemui",
         "wmshell.protolog.json.gz",
     ],
+}
+
+android_library_import {
+    name: "lib_pictorial"
+    aars: ["libs/pictorial-6.28-TEST-release.aar"],
 }
