@@ -25,6 +25,22 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
+    <!-- ===aistudio PicArt update Start=== -->
+    <ImageView android:id="@+id/backdrop_back"
+        android:layout_width="match_parent"
+        android:scaleType="centerCrop"
+        android:layout_height="match_parent"
+        sysui:ignoreRightInset="true"
+        android:visibility="gone"/>
+    <!-- ===aistudio PicArt update End=== -->
+
+    <!-- Placeholder for the communal UI that will be replaced if the feature is enabled. -->
+    <View
+        android:id="@+id/communal_ui_stub"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
     <com.android.systemui.statusbar.BackDropView
         android:id="@+id/backdrop"
         android:layout_width="match_parent"
@@ -68,6 +84,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="invisible" />
+
+    <!-- Root for all keyguard content. It was previously located within the shade. -->
+    <com.android.systemui.keyguard.ui.view.KeyguardRootView
+        android:id="@id/keyguard_root_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        />
 
     <include layout="@layout/brightness_mirror_container" />
 
@@ -123,4 +147,8 @@
         android:importantForAccessibility="no"
         sysui:ignoreRightInset="true"
         />
+
+    <!-- ===aistudio PicArt update Start=== -->
+    <include layout="@layout/pic_art_layout" />
+    <!-- ===aistudio PicArt update End=== -->
 </com.android.systemui.shade.NotificationShadeWindowView>
