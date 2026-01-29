@@ -530,6 +530,6 @@ android_app {
 }
 
 android_library_import {
-    name: "lib_pictorial"
+    name: "lib_pictorial",
     aars: ["libs/pictorial-6.28-TEST-release.aar"],
 }
