@@ -110,13 +110,13 @@ abstract class ShadeModule {
         }
 
         // TODO(b/277762009): Only allow this view's controller to inject the view. See above.
-//        @Provides
-//        @SysUISingleton
-//        fun providesLockIconView(
-//            notificationShadeWindowView: NotificationShadeWindowView,
-//        ): LockIconView {
-//            return notificationShadeWindowView.findViewById(R.id.lock_icon_view)
-//        }
+        @Provides
+        @SysUISingleton
+        fun providesLockIconView(
+            notificationShadeWindowView: NotificationShadeWindowView,
+        ): LockIconView {
+            return notificationShadeWindowView.findViewById(R.id.lock_icon_view)
+        }
 
         // TODO(b/277762009): Only allow this view's controller to inject the view. See above.
         @Provides
