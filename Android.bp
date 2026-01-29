@@ -154,6 +154,7 @@ android_library {
         "res-aistudio",
     ],
     static_libs: [
+        "lib_pictorial",
         "WifiTrackerLib",
         "WindowManager-Shell",
         "SystemUIAnimationLib",
@@ -508,7 +509,6 @@ android_app {
     ],
     static_libs: [
         "SystemUI-core",
-        "lib_pictorial",
     ],
     resource_dirs: [
     ],
