@@ -18,7 +18,8 @@ import android.content.res.Resources
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.flags.FeatureFlags
 import com.android.systemui.flags.Flags
-import com.android.systemui.res.R
+//import com.android.systemui.res.R
+import com.android.systemui.R
 import javax.inject.Inject
 /**
  * Source of truth for split shade state: should or should not use split shade based on orientation,
